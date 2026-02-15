@@ -488,10 +488,17 @@
 
             // Disable start button immediately
             startBtn.disabled = true;
-            status.textContent = "Connecting...";
-            status.className = "call-status pulse";
+            status.textContent = "Requesting microphone...";
+            status.className = "call-status";
 
             try {
+                // Request mic first — needed for Edge and some browsers
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                // Stop the stream so the SDK can claim it
+                stream.getTracks().forEach(t => t.stop());
+
+                status.textContent = "Connecting...";
+                status.className = "call-status pulse";
 
                 agent.conversation = await Conversation.startSession({
                     agentId: agent.agentId,
@@ -535,7 +542,7 @@
                 } else if (err.name === "NotFoundError") {
                     status.textContent = "No microphone found. Please connect one and try again.";
                 } else {
-                    status.textContent = "Could not connect. Please try again.";
+                    status.textContent = "Error: " + (err.message || err.name || "Unknown error. Try Chrome.");
                 }
                 status.className = "call-status error";
                 startBtn.style.display = "inline-flex";
