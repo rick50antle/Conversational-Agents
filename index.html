@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rick's AI Helpers — Yale School of Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f0;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: #00356b;
+            padding: 1.25rem 2rem;
+        }
+
+        header h1 {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        header .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.875rem;
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .beta-banner {
+            background-color: #fff3cd;
+            border: 1px solid #e0c36a;
+            border-radius: 8px;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.875rem;
+            color: #664d03;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .beta-banner a {
+            color: #00356b;
+            font-weight: 600;
+        }
+
+        .cost-notice {
+            background-color: #fff;
+            border: 1px solid #e0ddd4;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            font-size: 0.875rem;
+            color: #555;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .cost-notice strong {
+            color: #333;
+        }
+
+        .bots {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 640px) {
+            .bots {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .bot-card {
+            background: white;
+            border: 2px solid #e0ddd4;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+
+        .bot-card:hover {
+            border-color: #00356b;
+        }
+
+        .bot-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .bot-card .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 0.75rem;
+            border: 3px solid #00356b;
+        }
+
+        .bot-card h2 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #00356b;
+            margin-bottom: 0.5rem;
+        }
+
+        .bot-card p {
+            font-size: 0.875rem;
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .bot-card .bot-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .call-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.5rem;
+            border: none;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .call-btn:active {
+            transform: scale(0.97);
+        }
+
+        .call-btn.start {
+            background-color: #065f46;
+            color: white;
+        }
+
+        .call-btn.start:hover {
+            background-color: #047857;
+        }
+
+        .call-btn.end {
+            background-color: #991b1b;
+            color: white;
+        }
+
+        .call-btn.end:hover {
+            background-color: #b91c1c;
+        }
+
+        .call-btn:disabled {
+            background-color: #ccc;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        .call-btn:disabled:hover {
+            background-color: #ccc;
+        }
+
+        .call-status {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 0.5rem;
+            min-height: 1.25rem;
+        }
+
+        .call-status.active {
+            color: #065f46;
+            font-weight: 600;
+        }
+
+        .call-status.error {
+            color: #991b1b;
+        }
+
+        .status-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            margin-top: 0.75rem;
+        }
+
+        .status-live {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-coming {
+            background-color: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .tips {
+            background: white;
+            border: 1px solid #e0ddd4;
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        .tips h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #00356b;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tips ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tips li {
+            font-size: 0.875rem;
+            color: #555;
+            padding: 0.3rem 0;
+            padding-left: 1.25rem;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .tips li::before {
+            content: "\2192";
+            position: absolute;
+            left: 0;
+            color: #00356b;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem 2rem;
+            font-size: 0.75rem;
+            color: #999;
+            border-top: 1px solid #e0ddd4;
+        }
+
+        footer a {
+            color: #00356b;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .pulse {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* Consent modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.visible {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 480px;
+            width: 90%;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal h3 {
+            font-size: 1.1rem;
+            color: #00356b;
+            margin-bottom: 1rem;
+        }
+
+        .modal p {
+            font-size: 0.85rem;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        .modal-btn.agree {
+            background-color: #065f46;
+            color: white;
+        }
+
+        .modal-btn.agree:hover {
+            background-color: #047857;
+        }
+
+        .modal-btn.decline {
+            background-color: #f3f4f6;
+            color: #555;
+            border: 1px solid #d1d5db;
+        }
+
+        .modal-btn.decline:hover {
+            background-color: #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1>Rick's AI Helpers</h1>
+            <div class="subtitle">Yale School of Management</div>
+        </div>
+    </header>
+
+    <main>
+
+        <div class="beta-banner">
+            These tools are in <strong>beta</strong>. If something seems off, please let me know at <a href="mailto:rick.antle@yale.edu">rick.antle@yale.edu</a>.
+        </div>
+
+        <div class="cost-notice">
+            <strong>A note on costs:</strong> Every call to these AI helpers costs real money, which comes out of my pocket — not yours. Please be mindful of usage. Disconnect when you're finished and don't keep calls running longer than necessary. If my ElevenLabs account runs out of credits, the helpers will go offline until I can top it up.
+        </div>
+
+        <div class="bots">
+
+            <div class="bot-card">
+                <h2>Accounting Tutor</h2>
+                <img class="avatar" src="RickFunkoHead.jpg" alt="Accounting Tutor">
+                <p class="bot-name">RickBot1</p>
+                <button class="call-btn start" id="tutor-start" onclick="startCall('tutor')">
+                    &#x1F3A4; Start Call
+                </button>
+                <button class="call-btn end" id="tutor-end" onclick="endCall('tutor')" style="display: none;">
+                    &#x1F6D1; End Call
+                </button>
+                <div class="call-status" id="tutor-status"></div>
+                <br>
+                <span class="status-badge status-live">Live</span>
+            </div>
+
+            <div class="bot-card">
+                <h2>YALEiE User Manual</h2>
+                <img class="avatar" src="RickNerdFunkoHead.jpg" alt="YALEiE User Manual">
+                <p class="bot-name">RickBot2</p>
+                <button class="call-btn start" id="manual-start" onclick="startCall('manual')">
+                    &#x1F3A4; Start Call
+                </button>
+                <button class="call-btn end" id="manual-end" onclick="endCall('manual')" style="display: none;">
+                    &#x1F6D1; End Call
+                </button>
+                <div class="call-status" id="manual-status"></div>
+                <br>
+                <span class="status-badge status-live">Live</span>
+            </div>
+
+        </div>
+
+        <div class="tips">
+            <h3>Getting the most out of your session</h3>
+            <ul>
+                <li>Your browser may ask you to allow microphone access more than once — this is normal</li>
+                <li>Use headphones or earbuds for the best experience</li>
+                <li>Ask about a specific topic or transaction you're working on</li>
+                <li>Try to answer the tutor's questions before asking for help</li>
+                <li>Say "I'm done" when you're finished to get a session summary</li>
+                <li>Click "End Call" when you're done — don't leave the call running</li>
+            </ul>
+        </div>
+
+    </main>
+
+    <footer>
+        <p>Built by <a href="https://learning-accounting.yale.edu">Rick Antle</a> &middot; Yale School of Management &middot; AI-powered — verify important concepts with your instructor</p>
+    </footer>
+
+    <div class="modal-overlay" id="consent-modal">
+        <div class="modal">
+            <h3>Before you begin</h3>
+            <p>By clicking "Agree" and each time you interact with these AI helpers, you consent to the recording, storage, and sharing of your communications with third-party service providers, including ElevenLabs and Anthropic, as described in the <a href="https://elevenlabs.io/privacy" target="_blank">ElevenLabs Privacy Policy</a>.</p>
+            <p>If you do not wish to have your conversations recorded, please refrain from using this service.</p>
+            <div class="modal-buttons">
+                <button class="modal-btn decline" onclick="declineConsent()">Decline</button>
+                <button class="modal-btn agree" onclick="acceptConsent()">Agree</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { Conversation } from "https://esm.sh/@elevenlabs/client";
+
+        let consented = false;
+        let pendingBot = null;
+
+        window.acceptConsent = function() {
+            consented = true;
+            document.getElementById("consent-modal").classList.remove("visible");
+            if (pendingBot) {
+                const bot = pendingBot;
+                pendingBot = null;
+                window.startCall(bot);
+            }
+        };
+
+        window.declineConsent = function() {
+            document.getElementById("consent-modal").classList.remove("visible");
+            pendingBot = null;
+        };
+
+        const agents = {
+            tutor: {
+                agentId: "agent_01jxd11avne4nv78tc2jmcxtvj",
+                conversation: null
+            },
+            manual: {
+                agentId: "agent_01jx0ksfntfsftg82amjffzp1g",
+                conversation: null
+            }
+        };
+
+        window.startCall = async function(botName) {
+            // Show consent modal on first call
+            if (!consented) {
+                pendingBot = botName;
+                document.getElementById("consent-modal").classList.add("visible");
+                return;
+            }
+            const agent = agents[botName];
+            const startBtn = document.getElementById(botName + "-start");
+            const endBtn = document.getElementById(botName + "-end");
+            const status = document.getElementById(botName + "-status");
+
+            if (!agent.agentId) {
+                status.textContent = "This helper is not available yet.";
+                status.className = "call-status error";
+                return;
+            }
+
+            // Disable start button immediately
+            startBtn.disabled = true;
+            status.textContent = "Connecting...";
+            status.className = "call-status pulse";
+
+            try {
+
+                agent.conversation = await Conversation.startSession({
+                    agentId: agent.agentId,
+                    onConnect: () => {
+                        status.textContent = "Connected — start talking!";
+                        status.className = "call-status active";
+                        startBtn.style.display = "none";
+                        endBtn.style.display = "inline-flex";
+                    },
+                    onDisconnect: () => {
+                        status.textContent = "Call ended.";
+                        status.className = "call-status";
+                        startBtn.style.display = "inline-flex";
+                        startBtn.disabled = false;
+                        endBtn.style.display = "none";
+                        agent.conversation = null;
+                    },
+                    onError: (error) => {
+                        status.textContent = "Something went wrong. Try again.";
+                        status.className = "call-status error";
+                        startBtn.style.display = "inline-flex";
+                        startBtn.disabled = false;
+                        endBtn.style.display = "none";
+                        agent.conversation = null;
+                    },
+                    onModeChange: (mode) => {
+                        const label = botName === "tutor" ? "Tutor" : "Guide";
+                        if (mode.mode === "speaking") {
+                            status.textContent = label + " is speaking...";
+                        } else if (mode.mode === "listening") {
+                            status.textContent = "Listening...";
+                        }
+                        status.className = "call-status active";
+                    }
+                });
+
+            } catch (err) {
+                console.error("Failed to start call:", err);
+                if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+                    status.textContent = "Microphone access denied. Check your browser permissions.";
+                } else if (err.name === "NotFoundError") {
+                    status.textContent = "No microphone found. Please connect one and try again.";
+                } else {
+                    status.textContent = "Could not connect. Please try again.";
+                }
+                status.className = "call-status error";
+                startBtn.style.display = "inline-flex";
+                startBtn.disabled = false;
+                endBtn.style.display = "none";
+            }
+        };
+
+        window.endCall = async function(botName) {
+            const agent = agents[botName];
+            const status = document.getElementById(botName + "-status");
+
+            if (agent.conversation) {
+                status.textContent = "Ending call...";
+                status.className = "call-status";
+                try {
+                    await agent.conversation.endSession();
+                } catch (err) {
+                    console.error("Error ending session:", err);
+                }
+                agent.conversation = null;
+            }
+        };
+    </script>
+
+</body>
+</html>
